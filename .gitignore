@@ -1,0 +1,4 @@
+node_modules/
+audio/*
+bundle.js
+bundle.js.map

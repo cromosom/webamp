@@ -1,0 +1,17 @@
+body {
+
+  background-color: tomato;
+
+}
+
+.player {
+  max-width: 300px;
+  width: 100%;
+  height: 120px;
+  background-color: tomato;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 50px -5px black
+}
