@@ -9,6 +9,7 @@ var visualize = function (audioContext, source) {
   var bufferLength = analyser.frequencyBinCount;
   var dataArray = new Uint8Array(bufferLength);
 
+  $('.viscan').remove();
   var vis = $('<div />', {'class' : 'viscan'});
   var barSpacingPercent = 100 / analyser.frequencyBinCount;
   for (var i = 0; i < analyser.frequencyBinCount; i++) {
