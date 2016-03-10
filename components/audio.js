@@ -13,7 +13,7 @@ var audioApp = (function (items) {
     audio = items;
 
     var play = $('<button />', {
-      'class' : 'play'
+      'class' : 'play_pause'
     }).text('play');
 
     var stop = $('<button />', {
@@ -24,9 +24,10 @@ var audioApp = (function (items) {
       'class' : 'skip'
     }).text('skip >');
 
+    var progress = $('<div />', {'class' : 'progress'});
     var duration = $('<div />', {
       'class' : 'duration'
-    });
+    }).append(progress);
 
     var content = $('<div />', {
       'class' : 'controls'
@@ -44,11 +45,11 @@ var audioApp = (function (items) {
     cacheDom();
     createAudio(items, playing);
     bindEvents(items);
-    bindAudio();
+    bindAudioEcents();
   };
 
   var cacheDom = function () {
-    domStack.$play = $('.play');
+    domStack.$play = $('.play_pause');
     domStack.$stop = $('.stop');
     domStack.$skip = $('.skip');
     domStack.$duration = $('.duration');
@@ -61,6 +62,7 @@ var audioApp = (function (items) {
 
     domStack.$stop.on('click', function (){
       domStack.audio.pause();
+      domStack.audio.currentTime = 0;
     });
 
     domStack.$skip.on('click', function (){
@@ -69,22 +71,49 @@ var audioApp = (function (items) {
     });
   };
 
+  /**
+   * @param audio : filename
+   * @param playing : index of audiotrack
+   */
   var createAudio = function (audio, playing) {
     console.log(audio, playing);
-    domStack.audio = new Audio('../audio/' + audio[playing] );
+
+    //create audioNode and append to body
+    var audioElem = $('<audio />', {
+      'src' : '../audio/' + audio[playing],
+      'id' : 'audio-' + playing
+    });
+    $('body').append(audioElem);
+
+    //setting up AudioContext
+    domStack.audio = document.getElementById('audio-' + playing);
+    domStack.context = new AudioContext();
+
   };
 
-  var bindAudio = function () {
+
+  var bindAudioEcents = function () {
+
+    //waiting for Audio to be ready
+    domStack.audio.addEventListener("canplay", function() {
+      var audioSrc = domStack.context.createMediaElementSource(domStack.audio);
+
+      audioSrc.connect(domStack.context.destination);
+    });
+
+    //handling Audio-Progress
     domStack.audio.addEventListener('timeupdate', function () {
       played = Math.round(domStack.audio.currentTime / domStack.audio.duration * 100);
-      domStack.$duration.text(played + '%');
+      domStack.$duration.find('.progress').css('width', played + '%');
 
+      //initializing next audio-track
       if (domStack.audio.currentTime == domStack.audio.duration) {
         skip();
       }
     });
   };
 
+  //skipping audi-tracks
   var skip = function () {
     playing++;
     createAudio(audio, playing);
