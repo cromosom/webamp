@@ -5,7 +5,8 @@ var audioApp = (function (items) {
   var domStack = {};
   var playing,
       played,
-      audio;
+      audio,
+      audioContext;
 
   var init = function (items) {
 
@@ -45,7 +46,7 @@ var audioApp = (function (items) {
     cacheDom();
     createAudio(items, playing);
     bindEvents(items);
-    bindAudioEcents();
+    bindAudioEvents();
   };
 
   var cacheDom = function () {
@@ -87,18 +88,18 @@ var audioApp = (function (items) {
 
     //setting up AudioContext
     domStack.audio = document.getElementById('audio-' + playing);
-    domStack.context = new AudioContext();
+    audioContext = new AudioContext();
 
   };
 
 
-  var bindAudioEcents = function () {
+  var bindAudioEvents = function () {
 
     //waiting for Audio to be ready
     domStack.audio.addEventListener("canplay", function() {
-      var audioSrc = domStack.context.createMediaElementSource(domStack.audio);
+      var audioSrc = audioContext.createMediaElementSource(domStack.audio);
 
-      audioSrc.connect(domStack.context.destination);
+      audioSrc.connect(audioContext.destination);
     });
 
     //handling Audio-Progress
@@ -118,7 +119,7 @@ var audioApp = (function (items) {
     playing++;
     createAudio(audio, playing);
     domStack.audio.play();
-    bindAudio();
+    bindAudioEvents();
   };
 
   return {
