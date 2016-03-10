@@ -32,3 +32,16 @@ body {
   background-color: #FFC107;
   height: 100%;
 }
+
+.viscan {
+  height: 300px;
+  width: 500px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.bar {
+  position: absolute;
+  background-color: #FFC107;
+  bottom: 0;
+}

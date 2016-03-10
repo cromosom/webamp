@@ -7,3 +7,5 @@ playlist.init();
 //console.log(playlist.items);
 var audio = require('./components/audio.js');
 audio.init(playlist.items);
+
+var vis = require('./components/visualize.js');

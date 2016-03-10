@@ -1,4 +1,5 @@
 var $ = require('jquery');
+var vis = require('./visualize.js');
 
 var audioApp = (function (items) {
 
@@ -63,7 +64,7 @@ var audioApp = (function (items) {
 
     domStack.$stop.on('click', function (){
       domStack.audio.pause();
-      domStack.audio.currentTime = 0;
+      //domStack.audio.currentTime = 0;
     });
 
     domStack.$skip.on('click', function (){
@@ -97,9 +98,10 @@ var audioApp = (function (items) {
 
     //waiting for Audio to be ready
     domStack.audio.addEventListener("canplay", function() {
-      var audioSrc = audioContext.createMediaElementSource(domStack.audio);
+      var audioSrc = audioContext.createMediaElementSource(this);
 
       audioSrc.connect(audioContext.destination);
+      vis(audioContext, audioSrc);
     });
 
     //handling Audio-Progress
