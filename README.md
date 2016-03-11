@@ -14,5 +14,9 @@ Webamp was build with webpack and can be run by simply typing
 
 `npm start`
 
+#usage
+
+just place some mp3 files into the 'audio' folder.
+
 
 v 1.0
