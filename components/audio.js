@@ -4,14 +4,15 @@ var vis = require('./visualize.js');
 var audioApp = (function (items) {
 
   var domStack = {};
-  var playing,
-      played,
+  var audioStack = [];
+  var audioIndex,
+      alreadyPlayed,
       audio,
       audioContext;
 
   var init = function (items) {
 
-    playing = 0;
+    audioIndex = 0;
     audio = items;
 
     var play = $('<button />', {
@@ -20,11 +21,15 @@ var audioApp = (function (items) {
 
     var stop = $('<button />', {
       'class' : 'stop'
-    }).text('stop');
+    }).text('pause');
 
     var skip = $('<button />', {
       'class' : 'skip'
     }).text('skip >');
+
+    var skipBack = $('<button />', {
+      'class' : 'skip-back'
+    }).text('< skip');
 
     var progress = $('<div />', {'class' : 'progress'});
     var duration = $('<div />', {
@@ -33,7 +38,9 @@ var audioApp = (function (items) {
 
     var content = $('<div />', {
       'class' : 'controls'
-    }).append(play)
+    })
+      .append(skipBack)
+      .append(play)
       .append(stop)
       .append(skip)
       .append(duration);
@@ -42,10 +49,10 @@ var audioApp = (function (items) {
       class : 'player'
     }).html(content);
 
-    document.body.appendChild(controls[0]);
+    $('body').append(controls);
 
     cacheDom();
-    createAudio(items, playing);
+    createAudio(items, audioIndex);
     bindEvents(items);
     bindAudioEvents();
   };
@@ -54,6 +61,7 @@ var audioApp = (function (items) {
     domStack.$play = $('.play_pause');
     domStack.$stop = $('.stop');
     domStack.$skip = $('.skip');
+    domStack.$skipBack = $('.skip-back');
     domStack.$duration = $('.duration');
   };
 
@@ -64,35 +72,59 @@ var audioApp = (function (items) {
 
     domStack.$stop.on('click', function (){
       domStack.audio.pause();
-      //domStack.audio.currentTime = 0;
     });
 
     domStack.$skip.on('click', function (){
+      if ( audio.length == (audioIndex + 1) ) {
+        return;
+      }
       domStack.audio.pause();
-      skip();
+      audioIndex++;
+      skip(audioIndex);
+    });
+
+    domStack.$skipBack.on('click', function (){
+      if ( 1 == (audioIndex + 1) ) {
+        return;
+      }
+      domStack.audio.pause();
+      audioIndex--;
+      skip(audioIndex);
     });
   };
 
   /**
    * @param audio : filename
-   * @param playing : index of audiotrack
+   * @param audioIndex : index of audiotrack
    */
-  var createAudio = function (audio, playing) {
-    console.log(audio, playing);
+  var createAudio = function (audio, audioIndex) {
+    console.log(audio, audioIndex);
 
-    //create audioNode and append to body
-    var audioElem = $('<audio />', {
-      'src' : '../audio/' + audio[playing],
-      'id' : 'audio-' + playing
-    });
-    $('body').append(audioElem);
+    if ( audioStack[audioIndex] === undefined ){
+      setAudio(audio, audioIndex);
+      $('body').append(audioStack[audioIndex].node);
+    }
 
     //setting up AudioContext
-    domStack.audio = document.getElementById('audio-' + playing);
-    audioContext = new AudioContext();
+    domStack.audio = document.getElementById('audio-' + audioIndex);
 
   };
 
+  var setAudio = function (audio, audioIndex) {
+
+    //create audioNode and append to body
+    var audioElem = $('<audio />', {
+      'src' : '../audio/' + audio[audioIndex],
+      'id' : 'audio-' + audioIndex
+    });
+
+    audioStack.push({
+      'index' : audioIndex,
+      'node' : audioElem
+    });
+
+    audioContext = new AudioContext();
+  };
 
   var bindAudioEvents = function () {
 
@@ -106,8 +138,8 @@ var audioApp = (function (items) {
 
     //handling Audio-Progress
     domStack.audio.addEventListener('timeupdate', function () {
-      played = Math.round(domStack.audio.currentTime / domStack.audio.duration * 100);
-      domStack.$duration.find('.progress').css('width', played + '%');
+      alreadyPlayed = Math.round(domStack.audio.currentTime / domStack.audio.duration * 100);
+      domStack.$duration.find('.progress').css('width', alreadyPlayed + '%');
 
       //initializing next audio-track
       if (domStack.audio.currentTime == domStack.audio.duration) {
@@ -117,9 +149,8 @@ var audioApp = (function (items) {
   };
 
   //skipping audi-tracks
-  var skip = function () {
-    playing++;
-    createAudio(audio, playing);
+  var skip = function (index) {
+    createAudio(audio, index);
     domStack.audio.play();
     bindAudioEvents();
   };

@@ -16,6 +16,8 @@ body {
   align-items: center;
   box-shadow: 0 5px 50px -5px black;
   margin-bottom: 20px;
+  z-index: 100;
+  opacity: .9;
 }
 
 .duration {
@@ -33,15 +35,29 @@ body {
   height: 100%;
 }
 
-.viscan {
-  height: 300px;
-  width: 500px;
+.viscontainer {
+  position: absolute;
+  width: 600px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.viscan, .viscan2 {
+  height: 700px;
+  width: 300px;
   position: relative;
-  margin: 0 auto;
+  display: inline-block;
+  transform: scaleY(-1);
+}
+
+.viscan2 {
+  transform: scaleX(-1) scaleY(-1);
 }
 
 .bar {
-  position: absolute;
+  position: relative;
   background-color: #FFC107;
   bottom: 0;
+  opacity: .9;
 }
