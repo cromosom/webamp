@@ -17,7 +17,7 @@ var audioApp = (function (items) {
     var range = $('<input />', {
       'class' : 'volume',
       'type' : 'range',
-      'value' : 100
+      'value' : 50
     });
 
     var play = $('<button />', {
@@ -74,6 +74,7 @@ var audioApp = (function (items) {
   var bindEvents = function (audio) {
 
     domStack.$play.on('click', function (){
+      playing.volume = domStack.$volume.attr('value') / 100;
       playing.play();
     });
 
@@ -173,7 +174,8 @@ var audioApp = (function (items) {
   var skip = function (index) {
 
     playing = document.getElementById(audioStack[index].selector);
-
+    domStack.$volume.val(50);
+    playing.volume = domStack.$volume.attr('value') / 100;
     playing.play();
 
   };
