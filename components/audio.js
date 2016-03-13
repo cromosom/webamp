@@ -14,6 +14,12 @@ var audioApp = (function (items) {
     audioIndex = 0;
     audio = items;
 
+    var range = $('<input />', {
+      'class' : 'volume',
+      'type' : 'range',
+      'value' : 100
+    });
+
     var play = $('<button />', {
       'class' : 'play_pause'
     }).text('play');
@@ -35,20 +41,20 @@ var audioApp = (function (items) {
       'class' : 'duration'
     }).append(progress);
 
-    var content = $('<div />', {
+    var controls = $('<div />', {
       'class' : 'controls'
-    })
-      .append(skipBack)
+    }).append(skipBack)
       .append(play)
       .append(stop)
       .append(skip)
+      .append(range);
+
+    var player = $('<div />', {
+      class : 'player'
+    }).append(controls)
       .append(duration);
 
-    var controls = $('<div />', {
-      class : 'player'
-    }).html(content);
-
-    $('body').append(controls);
+    $('body').append(player);
 
     cacheDom();
     createAudio(items, audioIndex);
@@ -62,6 +68,7 @@ var audioApp = (function (items) {
     domStack.$skip     = $('.skip');
     domStack.$skipBack = $('.skip-back');
     domStack.$duration = $('.duration');
+    domStack.$volume   = $('.volume');
   };
 
   var bindEvents = function (audio) {
@@ -94,6 +101,10 @@ var audioApp = (function (items) {
       playing.pause();
       audioIndex--;
       skip(audioIndex);
+    });
+
+    domStack.$volume.on('change', function (e) {
+      playing.volume = this.value / 100;
     });
   };
 
