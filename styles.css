@@ -35,7 +35,7 @@ body {
   height: 100%;
 }
 
-.viscontainer {
+[class^=viscontainer] {
   position: absolute;
   width: 600px;
   top: 0;

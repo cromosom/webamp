@@ -6,9 +6,8 @@ var audioApp = (function (items) {
   var domStack = {};
   var audioStack = [];
   var audioIndex,
-      alreadyPlayed,
       audio,
-      audioContext;
+      playing;
 
   var init = function (items) {
 
@@ -58,36 +57,41 @@ var audioApp = (function (items) {
   };
 
   var cacheDom = function () {
-    domStack.$play = $('.play_pause');
-    domStack.$stop = $('.stop');
-    domStack.$skip = $('.skip');
+    domStack.$play     = $('.play_pause');
+    domStack.$stop     = $('.stop');
+    domStack.$skip     = $('.skip');
     domStack.$skipBack = $('.skip-back');
     domStack.$duration = $('.duration');
   };
 
   var bindEvents = function (audio) {
+
     domStack.$play.on('click', function (){
-      domStack.audio.play();
+      playing.play();
     });
 
     domStack.$stop.on('click', function (){
-      domStack.audio.pause();
+      playing.pause();
     });
 
     domStack.$skip.on('click', function (){
+
       if ( audio.length == (audioIndex + 1) ) {
         return;
       }
-      domStack.audio.pause();
+
+      playing.pause();
       audioIndex++;
       skip(audioIndex);
     });
 
     domStack.$skipBack.on('click', function (){
+
       if ( 1 == (audioIndex + 1) ) {
         return;
       }
-      domStack.audio.pause();
+
+      playing.pause();
       audioIndex--;
       skip(audioIndex);
     });
@@ -98,61 +102,69 @@ var audioApp = (function (items) {
    * @param audioIndex : index of audiotrack
    */
   var createAudio = function (audio, audioIndex) {
-    console.log(audio, audioIndex);
-
-    if ( audioStack[audioIndex] === undefined ){
-      setAudio(audio, audioIndex);
-      $('body').append(audioStack[audioIndex].node);
-    }
-
-    //setting up AudioContext
-    domStack.audio = document.getElementById('audio-' + audioIndex);
-
-  };
-
-  var setAudio = function (audio, audioIndex) {
 
     //create audioNode and append to body
-    var audioElem = $('<audio />', {
-      'src' : '../audio/' + audio[audioIndex],
-      'id' : 'audio-' + audioIndex
+    audio.forEach(function (item, index) {
+      var audioElem = $('<audio />', {
+        'src' : '../audio/' + item,
+        'id' : 'audio-' + index
+      });
+
+      var audioCtx = new AudioContext();
+
+      audioStack.push({
+        'selector' : 'audio-' + index,
+        'node' : audioElem,
+        'audioContext' : audioCtx
+      });
+
+      $('body').append(audioStack[index].node);
     });
 
-    audioStack.push({
-      'index' : audioIndex,
-      'node' : audioElem
-    });
+    playing = document.getElementById(audioStack[audioIndex].selector);
 
-    audioContext = new AudioContext();
   };
 
   var bindAudioEvents = function () {
 
-    //waiting for Audio to be ready
-    domStack.audio.addEventListener("canplay", function() {
-      var audioSrc = audioContext.createMediaElementSource(this);
+    audioStack.forEach(function (item, index) {
 
-      audioSrc.connect(audioContext.destination);
-      vis(audioContext, audioSrc);
+      var audioItem = document.getElementById(item.selector);
+
+      //waiting for Audio to be ready
+      audioItem.addEventListener("canplay", function() {
+        item.audioSrc = item.audioContext.createMediaElementSource(this);
+        item.audioSrc.connect(item.audioContext.destination);
+
+        vis(item.audioContext, item.audioSrc, index);
+      });
+
+      //handling Audio-Progress
+      audioItem.addEventListener('timeupdate', function () {
+        var alreadyPlayed = Math.round(audioItem.currentTime / audioItem.duration * 100);
+        domStack.$duration.find('.progress').css('width', alreadyPlayed + '%');
+
+        //initializing next audio-track
+        if (audioItem.currentTime == audioItem.duration) {
+          if ( audio.length == (audioIndex + 1) ) {
+            return;
+          }
+          audioIndex++;
+          skip(audioIndex);
+        }
+      });
+
     });
 
-    //handling Audio-Progress
-    domStack.audio.addEventListener('timeupdate', function () {
-      alreadyPlayed = Math.round(domStack.audio.currentTime / domStack.audio.duration * 100);
-      domStack.$duration.find('.progress').css('width', alreadyPlayed + '%');
-
-      //initializing next audio-track
-      if (domStack.audio.currentTime == domStack.audio.duration) {
-        skip();
-      }
-    });
   };
 
   //skipping audi-tracks
   var skip = function (index) {
-    createAudio(audio, index);
-    domStack.audio.play();
-    bindAudioEvents();
+
+    playing = document.getElementById(audioStack[index].selector);
+
+    playing.play();
+
   };
 
   return {

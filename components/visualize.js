@@ -1,7 +1,14 @@
 var $ = require('jquery');
 
-var visualize = function (audioContext, source) {
+/**
+ * Visualiser
+ * @param audioContext
+ * @param audioSource
+ * @param index of file
+ */
+var visualize = function (audioContext, source, index) {
 
+  //setup frequency data
   var analyser = audioContext.createAnalyser();
   source.connect(analyser);
 
@@ -9,8 +16,7 @@ var visualize = function (audioContext, source) {
   var bufferLength = analyser.frequencyBinCount;
   var dataArray = new Uint8Array(bufferLength);
 
-  $('.viscan').remove();
-  $('.viscan2').remove();
+  //create nodes
   var vis = $('<div />', {'class' : 'viscan'});
   var vis2 = $('<div />', {'class' : 'viscan2'});
   var barSpacingPercent = 100 / analyser.frequencyBinCount;
@@ -18,28 +24,28 @@ var visualize = function (audioContext, source) {
     $('<div />', {
       'class' : 'bar'
     })
-      // .css('left', i * barSpacingPercent + '%')
       .appendTo(vis);
     $('<div />', {
       'class' : 'bar'
     })
-      // .css('left', i * barSpacingPercent + '%')
       .appendTo(vis2);
   }
   $('<div />', {
-    'class' : 'viscontainer'
+    'class' : 'viscontainer' + index
   }).append(vis2)
     .append(vis)
     .appendTo('body');
 
-  var bars = $('.viscan > .bar');
-  var bars2 = $('.viscan2 > .bar');
+  var bars = $('.viscontainer' + index + ' .viscan > .bar');
+  var bars2 = $('.viscontainer' + index + ' .viscan2 > .bar');
+
+  //render visualisation
   function renderFrame() {
      requestAnimationFrame(renderFrame);
      // update data in frequencyData
      analyser.getByteFrequencyData(dataArray);
-     // render frame based on values in frequencyData
 
+     // render frame based on values in frequencyData
      var height = 500 / bars.length;
      bars.css('height', height + 'px');
      bars2.css('height', height + 'px');
@@ -54,7 +60,5 @@ var visualize = function (audioContext, source) {
 
   renderFrame();
 };
-
-
 
 module.exports = visualize;
