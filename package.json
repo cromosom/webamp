@@ -1,5 +1,5 @@
 {
-  "name": "webpack-setup",
+  "name": "webamp",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --inline --hot ./index.js bundle.js"
   },
-  "author": "",
+  "author": "Tim Woldt",
   "license": "ISC",
   "dependencies": {
     "jquery": "^2.2.0",
