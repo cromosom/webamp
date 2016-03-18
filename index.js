@@ -1,3 +1,6 @@
+import React from "react";
+import ReactDom from "react-dom";
+
 require('./styles.css');
 
 var playlist = require('./components/playlist.js');

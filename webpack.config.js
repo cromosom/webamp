@@ -6,10 +6,16 @@ module.exports = {
   },
   devtool : 'source-map',
   module : {
-    preLoaders : [
-      {test : /\.js$/, exclude: /node_module/, loader: 'jshint-loader'}
-    ],
     loaders : [
+      {
+        test : /\.js$/,
+        exclude : /(node_module|bower_components)/,
+        loader : 'babel-loader',
+        query : {
+          presets: ['react', 'es2015'],
+          plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy']
+        }
+      },
       {test : /\.css$/, loader: 'style!css!'},
       {test : /\.html$/, loader: 'raw'},
       {test : /\.mp3$/, loader: 'file'}
